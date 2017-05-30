@@ -1,0 +1,43 @@
+
+<div class="row">
+    <div class="col-sm-12">
+
+        <div class="panel-body">
+            <a href='{{urlfor "ArticleController.Add"}}' class="pull-right btn btn-success">创建一篇新博文</a>
+            <table class="table  table-hover general-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>博文名称</th>
+                    <th>添加时间</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{range .list}}
+                   <tr>
+                       <td>{{.Id}}</td>
+                       <td>{{.Name}}</td>
+                       <td>{{.Name}}</td>
+                       <td>
+                           <a href="" class="btn btn-success">编辑</a>
+                           <button data-id="{{.Id}}" class="delete btn btn-danger">删除</button>
+                       </td>
+                   </tr>
+                {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    $(".delete").click(function () {
+        alert(1);
+        var id = $(this).data('id')
+        $.get('{{urlfor "ArticleController.Delete"}}',{id:id},function (data) {
+            setTimeout(function () {
+                window.location.reload()
+            },800)
+        })
+    })
+</script>
