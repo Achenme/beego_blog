@@ -3,6 +3,7 @@ package controllers
 import (
 	"blog/models"
 	//"sync"
+	"sync"
 )
 
 type IndexController struct {
@@ -13,8 +14,8 @@ func (this *IndexController) Get() {
 	var article models.Article
 	var list []*models.Article
 	var relation *models.Relation
-	var relationlist []*models.Relation
-	var tag models.Tag
+	//var relationlist []*models.Relation
+	//var tag models.Tag
 	name:=this.GetString("name")
 	page,_:=this.GetInt("page")
 
@@ -29,34 +30,33 @@ func (this *IndexController) Get() {
 	a = make(map[int][]string)
 
 
-	//var nn sync.WaitGroup
+	var nn sync.WaitGroup
 	for k,_:=range list{
-		//nn.Add(1)
-		//go func() {
-		//	defer nn.Done()
+		nn.Add(1)
+		go func(k int) {
+			defer nn.Done()
+			relationlist := []*models.Relation{}
 			query:=relation.Query()
 			query.Filter("aid",list[k].Id).All(&relationlist)
-			//var n sync.WaitGroup
+			var n sync.WaitGroup
 			for r,_:=range relationlist{
-				//n.Add(1)
-				//go func(){
-				//	defer nn.Done()
+				n.Add(1)
+				go func(){
+					defer n.Done()
+				tag := models.Tag{}
 					tid:=relationlist[r].Tid
 					tag.Id = tid
 					if err:=tag.Read();err==nil{
 						a[list[k].Id] = append(a[list[k].Id],tag.Name)
 					}
-					tag = models.Tag{}
-				//}()
+
+				}()
 
 			}
-			//n.Wait()
-		//}()
-
-		relationlist = []*models.Relation{}
-
+			n.Wait()
+		}(k)
 	}
-	//nn.Wait()
+	nn.Wait()
 	this.Data["count"] = count
 	this.Data["paginator"] = models.Paginator(page,PageSize,count)
 	this.Data["list"] = list

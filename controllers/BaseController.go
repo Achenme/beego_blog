@@ -11,7 +11,7 @@ type BaseController struct {
 	beego.Controller
 }
 
-var ch = make(chan int,10)
+var ch = make(chan int,1)
 func (this *BaseController) Prepare()  {
 	ch<-1
 	this.Layout = "layout.html"
