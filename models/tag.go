@@ -5,8 +5,9 @@ import(
 )
 
 type Tag struct {
-	Id    int
-	Name  string
+	Id    int `form:"-"`
+	Name  string `form:"name"`
+	Addtime	int64
 }
 
 func (m *Tag) TableName() string  {

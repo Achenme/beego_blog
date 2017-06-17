@@ -9,6 +9,7 @@ type Article struct {
 	Id	int `form:"-"`
 	Name 	string `form:"name" valid:"Required"`
 	Content	string `form:"content"`
+	Addtime int64
 }
 
 

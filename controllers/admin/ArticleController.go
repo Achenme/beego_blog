@@ -4,13 +4,14 @@ import (
 	"blog/models"
 	"github.com/astaxie/beego/validation"
 	"github.com/astaxie/beego"
+
+	"time"
+	"strings"
+	"fmt"
 )
 
 type ArticleController struct {
 	BaseController
-}
-func (this *ArticleController) Prepare() {
-	this.Layout = "admin/layout.html"
 }
 
 
@@ -39,12 +40,17 @@ func (this *ArticleController) Edit() {
 	if err:=article.Read();err!=nil{
 		this.Abort("404")
 	}
+
+	//var relation models.Relation
+
 	this.Data["article"] = article
 	this.TplName = "admin/article/modify.html"
 }
 
 //TODO
 func (this *ArticleController) Save(){
+	var relation models.Relation
+	var tag_model models.Tag
 	var article models.Article
 	valid := validation.Validation{}
 	this.ParseForm(&article)
@@ -62,11 +68,33 @@ func (this *ArticleController) Save(){
 	}
 
 	id,_:= this.GetInt("id")
+	fmt.Println(id)
+	tag:=this.GetString("tag")
 	if id<=0{
+
+		article.Addtime = time.Now().Unix()
 		err:=article.Insert()
 		if err!=nil{
 			flash.Error("添加失败")
 		}else{
+			if tag != ""{
+
+				tagArr:=strings.Split(tag,",")
+				for _,v:=range tagArr{
+					tag_model.Name = v
+					if err:=tag_model.Read("Name");err!=nil{
+						tag_model.Addtime = time.Now().Unix()
+						tag_model.Insert()
+					}
+					relation.Aid = article.Id
+					relation.Tid = tag_model.Id
+					relation.Addtime = time.Now().Unix()
+					relation.Insert()
+					relation = models.Relation{}
+					tag_model = models.Tag{}
+				}
+			}
+
 			flash.Success("添加成功")
 		}
 	}else{
@@ -76,10 +104,29 @@ func (this *ArticleController) Save(){
 		}else{
 			this.ParseForm(&article)
 			article.Id = id
+			article.Addtime = time.Now().Unix()
 			err:=article.Update()
 			if err!=nil{
 				flash.Error("编辑失败")
 			}else{
+				if tag != ""{
+
+					tagArr:=strings.Split(tag,",")
+					for _,v:=range tagArr{
+						tag_model.Name = v
+						if err:=tag_model.Read("Name");err!=nil{
+							tag_model.Addtime = time.Now().Unix()
+							tag_model.Insert()
+						}
+						relation.Aid = article.Id
+						relation.Tid = tag_model.Id
+						relation.Addtime = time.Now().Unix()
+						relation.Insert()
+						relation = models.Relation{}
+						tag_model = models.Tag{}
+					}
+				}
+
 				flash.Success("编辑成功")
 			}
 		}

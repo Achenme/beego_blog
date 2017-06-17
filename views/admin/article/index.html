@@ -20,7 +20,7 @@
                        <td>{{.Name}}</td>
                        <td>{{.Name}}</td>
                        <td>
-                           <a href="" class="btn btn-success">编辑</a>
+                           <a href='{{urlfor "ArticleController.Edit"}}?id={{.Id}}' class="btn btn-success">编辑</a>
                            <button data-id="{{.Id}}" class="delete btn btn-danger">删除</button>
                        </td>
                    </tr>
